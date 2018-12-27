@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace命名空间，唯一特性 -->
+<mapper namespace="com.hush.mapper.PicMapper">
+	    <select id="findImg" parameterType="java.lang.String" resultType="Pic">
+          SELECT i.img,m.* FROM img i,message m 
+          <where>
+              i.message_id=m.id
+              <if test="com!= ''">
+                 and m.com like concat(concat('%',#{com}),'%')
+              </if>
+              <if test="floatPeople != ''">
+                 and m.floatPeople = #{floatPeople}
+              </if>
+              <if test="nah != ''">
+                 and m.nah = #{nah}
+              </if>
+              <if test="pah != ''">
+                and m.pah = #{pah}
+              </if>
+               <if test="realtive != ''">
+                and m.realtive = #{realtive}
+              </if>
+                            
+               <if test="starttime != '' and endtime != ''">
+                and m.creattime between #{starttime} and #{endtime}
+              </if>
+              <if test="starttime != '' and endtime == ''">
+                and m.creattime <![CDATA[>=]]> #{starttime}
+              </if>
+              <if test="starttime == '' and endtime != ''">
+                and m.creattime <![CDATA[<=]]> #{endtime}
+              </if>
+          </where>
+    </select>
+</mapper>

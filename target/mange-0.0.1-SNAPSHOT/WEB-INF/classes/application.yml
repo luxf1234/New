@@ -1,0 +1,27 @@
+server:
+  port: 8070
+spring:
+  mvc:
+    view:
+      prefix: /WEB-INF/
+      suffix: .jsp
+  datasource:
+    url: jdbc:mysql://121.43.186.83:3306/people?useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: wasucpzcb
+#    url: jdbc:mysql://localhost:3306/people?useUnicode=true&characterEncoding=UTF-8
+#    username: root
+#    password: 123
+    
+    driver-class-name: com.mysql.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+mybatis:
+  typeAliasesPackage: com.hush.pojo
+  mapperLocations: classpath:mappers/*.xml
+
+logging:
+  level: 
+    com.hushu.mapper: debug
+
+
+    

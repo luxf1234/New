@@ -1,0 +1,274 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<link rel="stylesheet" type="text/css" href="static/h-ui/css/H-ui.min.css" />
+<link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/H-ui.admin.css" />
+<link rel="stylesheet" type="text/css" href="lib/Hui-iconfont/1.0.8/iconfont.css" />
+<link rel="stylesheet" type="text/css" href="static/h-ui.admin/skin/default/skin.css" id="skin" />
+<link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/style.css" />
+
+<style type="text/css"> 
+.page{
+	right:40px;
+	margin-top:40px;
+}
+</style> 
+
+<title>人员查询</title>
+</head>
+<body>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 人员查询 <span class="c-gray en">&gt;</span> 图片列表 <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="page-container">
+	<div class="text-c"> 
+	<form method="get" id="ff">
+		<input type="text" class="input-text" style="width:150px" placeholder="小区名称" id="com" name="com">
+		<input type="text" class="input-text" style="width:180px" placeholder="人员居住类型(0/1/2/3/4)" id="floatPeople" name="floatPeople">
+		<input type="text" class="input-text" style="width:180px" placeholder="是否居住在本小区(0/1)" id="nah" name="nah">
+		<input type="text" class="input-text" style="width:180px" placeholder="户籍所在地(0/1/2)" id="pah" name="pah">
+		<input type="text" class="input-text" style="width:180px" placeholder="与户主关系" id="realtive" name="realtive">
+		<input type="text" class="input-text" style="width:180px" placeholder="时间例:20181226" id="starttime" name="starttime">
+		<input type="text" class="input-text" style="width:180px" placeholder="时间例:20181227" id="endtime" name="endtime">
+	</form>
+	<div>
+		<button id="submitForm" onclick="submitForm()">提交查询</button>
+		<button id="downloadfile" onclick="downloadfile()">数据导出</button>
+		<button id="downloadpic" onclick="downloadpic()">图片导出</button>
+	</div>
+	
+	</div>
+	
+	<div class="mt-20">
+		<table id="table1" class="table table-border table-bordered table-bg table-hover table-sort"
+		  data-page=0>
+			<thead>
+				<tr class="text-c">
+				<th width="25"><input type="checkbox" name="" value=""></th>
+				<th width="50">ID</th>
+				<th width="50">姓名</th>
+				<th width="90">头像</th>
+				<th width="90">小区</th>
+				<th width="90">电话</th>
+				<th width="120">身份证号</th>
+				<th width="90">车牌号</th>
+				<th width="150">住址</th>
+				<th width="50">人员居住类型</th>
+				<th width="50">与户主的关系</th>
+				<th width="50">户籍所在地</th>
+				<th width="50">是否居住在本小区</th>
+				<th width="50">修改日期</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				
+			</tbody>
+		</table>
+		<div class="page">
+			<button id='total' value='1'>共0条记录</button>
+			<button id='first' value='2'>首页</button>
+			<button id='pre' value='3'>上一页</button>
+			<button id='now' value='4'>第0页</button>
+			<button id='next' value='5'>下一页</button>
+			<button id='last' value='6'>尾页</button>
+			<button id='pageNum' value='7'>共0页</button>
+		</div>
+	</div>
+</div>
+
+<!--_footer 作为公共模版分离出去-->
+<script type="text/javascript" src="lib/jquery/1.9.1/jquery.min.js"></script> 
+<script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
+<script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script> 
+<script type="text/javascript" src="static/h-ui.admin/js/H-ui.admin.js"></script> <!--/_footer 作为公共模版分离出去-->
+
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript" src="lib/My97DatePicker/4.8/WdatePicker.js"></script> 
+<script type="text/javascript" src="lib/datatables/1.10.0/jquery.dataTables.min.js"></script> 
+<script type="text/javascript" src="lib/laypage/1.2/laypage.js"></script>
+<script type="text/javascript">
+
+$(function(){
+	$("#first,#pre,#next,#last").on("click",function(){
+		var that=this;
+		var com=$("#com").val();
+		var floatPeople=$("#floatPeople").val();
+		var nah=$("#nah").val();
+		var pah=$("#pah").val();
+		var realtive=$("#realtive").val();
+		var starttime=$("#starttime").val();
+		var endtime=$("#endtime").val();
+		var param={
+				"com":com,
+				"floatPeople":floatPeople,
+				"nah":nah,
+				"pah":pah,
+				"realtive":realtive,
+				"starttime":starttime,
+				"endtime":endtime
+		}
+		
+		var total=0;
+		var count=10;
+		var pageNum=0;
+		var val=that.value;
+		var pagenow=0;
+		
+		$.get("/file/imgFind",param,function(data){
+			total=data.length;
+			if(total>0){
+				pageNum=Math.floor((total-1)/count)+1;
+			
+			
+			var page=$("#table1").data("page");
+			
+			$("#total").html("共"+total+"条记录");
+			
+			if(val=='2'){
+				$("#table1").data("page",1);
+			}if(val=='3'){
+				if($("#table1").data("page")>1){
+					$("#table1").data("page",page-1);
+				}else{
+					$("#table1").data("page",1);
+				}
+			}if(val=='5'){
+				
+				if($("#table1").data("page")<pageNum){
+					$("#table1").data("page",page+1);
+				}else{
+					
+					$("#table1").data("page",pageNum);
+				}
+			}if(val=='6'){
+				$("#table1").data("page",pageNum);
+			}
+			
+			pagenow=$("#table1").data("page");
+			
+			$("#now").html("第"+pagenow+"页");
+			$("#pageNum").html("共"+pageNum+"页");
+			
+	    	$('#tbody').html("");
+	    	for(var i=(pagenow-1)*count;i<pagenow*count;i++)
+	    	{  
+	    		var url="https://wasu.minghuisama.com/home/file/"+data[i].img;
+		        $('#tbody').append('<tr class=\"text-c\"><td>'+'<input type="checkbox">'
+		        +'</td><td>'+data[i].id+'</td><td>'+data[i].userName+'</td><td><img style=\"width:30px;height:30px\"'+
+		        'src=\"'+url+'\"'+'></img>'
+		        +'</td><td>'+data[i].com
+		        +'</td><td>'+data[i].tel+'</td><td>'+data[i].idcard+'</td><td>'+data[i].car
+		        +'</td><td>'+data[i].address+'</td><td>'+data[i].floatPeople+'</td><td>'+data[i].realtive
+		        +'</td><td>'+data[i].pah+'</td><td>'+data[i].nah
+		        +'</td><td>'+data[i].creattime+'</td></tr>');
+	    	}
+			
+			}
+			else{
+				alert("您搜索用户不存在");
+			}
+		})	
+
+	});
+})
+
+
+function downloadpic(){
+	var com=$("#com").val();
+	var floatPeople=$("#floatPeople").val();
+	var nah=$("#nah").val();
+	var pah=$("#pah").val();
+	var realtive=$("#realtive").val();
+	var starttime=$("#starttime").val();
+	var endtime=$("#endtime").val();
+	var pic={
+			"com":com,
+			"floatPeople":floatPeople,
+			"nah":nah,
+			"pah":pah,
+			"realtive":realtive,
+			"starttime":starttime,
+			"endtime":endtime
+	}
+	
+ 	window.location.href="/file/downLoadFile?com="+com
+	+"&floatPeople="+floatPeople+"&nah="+nah
+	+"&pah="+pah+"&realtive="+realtive+"&starttime="+starttime
+	+"&endtime="+endtime; 
+	
+	
+}
+
+    
+function downloadfile(){
+
+	var com=$("#com").val();
+	var floatPeople=$("#floatPeople").val();
+	var nah=$("#nah").val();
+	var pah=$("#pah").val();	    
+	var realtive=$("#realtive").val();
+	var starttime=$("#starttime").val();
+	var endtime=$("#endtime").val();
+	
+	window.location.href="/file/download?com="+com
+			+"&floatPeople="+floatPeople+"&nah="+nah
+			+"&pah="+pah+"&realtive="+realtive+"&starttime="+starttime
+			+"&endtime="+endtime;
+}
+
+function submitForm(){
+	var param={
+			"com":$("#com").val(),
+			"floatPeople":$("#floatPeople").val(),
+			"nah":$("#nah").val(),
+			"pah":$("#pah").val(),
+			"realtive":$("#realtive").val(),
+			"starttime":$("#starttime").val(),
+			"endtime":$("#endtime").val()
+	}
+	
+	$.ajax({
+	    type: 'get',
+	    url:"/file/imgFind",
+	    data: param,
+	    dataType:"json",
+	    success: function(data) {
+	    	$("#total").html("共"+data.length+"条记录");
+	    	
+			if(data.length>0){
+				var pageNum=Math.floor((data.length-1)/10)+1;
+				$("#now").html("第"+1+"页");
+				$("#pageNum").html("共"+pageNum+"页");
+			}else{
+				$("#now").html("第"+0+"页");
+				$("#pageNum").html("共"+0+"页");
+				alert("您搜索用户不存在");
+			}
+			
+
+	    	//var jsonMsg=JSON.parse(data);
+	    	$('#tbody').html("");
+	    	for(var i=0;i<data.length&&i<10;i++)
+	    	{  
+	    		var url="https://wasu.minghuisama.com/home/file/"+data[i].img;
+//5---	    	var url="E:/home/file/"+data[i].img;
+		        $('#tbody').append('<tr class=\"text-c\"><td>'+'<input type="checkbox">'
+		        +'</td><td>'+data[i].id+'</td><td>'+data[i].userName+'</td><td><img style=\"width:30px;height:30px\"'+
+		        'src=\"'+url+'\"'+'></img>'
+		        +'</td><td>'+data[i].com
+		        +'</td><td>'+data[i].tel+'</td><td>'+data[i].idcard+'</td><td>'+data[i].car
+		        +'</td><td>'+data[i].address+'</td><td>'+data[i].floatPeople+'</td><td>'+data[i].realtive
+		        +'</td><td>'+data[i].pah+'</td><td>'+data[i].nah
+		        +'</td><td>'+data[i].creattime+'</td></tr>');
+	    	}
+	    }   
+	}); 
+	
+}
+
+</script>
+</body>
+</html>
